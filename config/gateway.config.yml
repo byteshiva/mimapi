@@ -1,0 +1,36 @@
+http:
+  port: 8080
+admin:
+  port: 9876
+  hostname: localhost
+apiEndpoints:
+  api:
+    host: localhost
+    paths: [ '/ip', '/uuid' ]
+serviceEndpoints:
+  httpbin:
+    url: 'https://httpbin.org'
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - rate-limit
+pipelines:
+  - name: getting-started
+    apiEndpoints:
+        - api
+    policies:
+      - rate-limit:
+        condition: # will execute action only for host matching example.com
+          name: hostMatch,
+          pattern: localhost
+        action:
+          max: 500 # limit to 500 req per default period windowMs=60000 (1 minute)
+      - proxy:
+          - action:
+              serviceEndpoint: httpbin
+              changeOrigin: true
